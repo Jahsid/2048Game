@@ -3,26 +3,28 @@ import GameOverlay from "@/components/GameOverlay";
 import Instructions from "@/components/Instructions";
 import Title from "@/components/Title";
 import { useSwipe } from "@/hooks/useSwipe";
-import { checkGameOver, checkWin, generateInitialGrid, moveGrid } from "@/logic/gameLogic";
+import { checkGameOver, checkWin, generateInitialGrid, moveGrid, type MoveDirection } from "@/logic/gameLogic";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { GestureDetector } from 'react-native-gesture-handler';
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 // 🎵 Import sound files (place them in assets/audio)
-const bgMusicFile = require("../assets/audio/bg-music.mp3");
-const moveSoundFile = require("../assets/audio/move.mp3");
-const winSoundFile = require("../assets/audio/win.mp3");
-const gameOverSoundFile = require("../assets/audio/gameover.mp3");
+import bgMusicFile from "../assets/audio/bg-music.mp3";
+import gameOverSoundFile from "../assets/audio/gameover.mp3";
+import moveSoundFile from "../assets/audio/move.mp3";
+import winSoundFile from "../assets/audio/win.mp3";
 
 export default function App() {
+  const insets = useSafeAreaInsets();
   const [grid, setGrid] = useState(generateInitialGrid());
   const [score, setScore] = useState(0);
   const [highScores, setHighScores] = useState<number[]>([]);
@@ -76,10 +78,10 @@ export default function App() {
       setHighScores(updated);
       AsyncStorage.setItem("highScores", JSON.stringify(updated));
     }
-  }, [gameOver, win]);
+  }, [gameOver, win, highScores, score]);
 
   const handleMove = useCallback(
-    async (direction: string) => {
+    async (direction: MoveDirection) => {
       if (!gameStarted || win || gameOver) return;
 
       setGrid((prevGrid) => {
@@ -107,7 +109,7 @@ export default function App() {
   );
 
   // 👆 Replace keyboard with swipe (hook listens to gestures)
-  useSwipe(handleMove);
+  const gesture = useSwipe(handleMove);
 
   const restartGame = async () => {
     setGrid(generateInitialGrid());
@@ -129,7 +131,8 @@ export default function App() {
   // ---------- UI ----------
   if (!gameStarted) {
     return (
-      <SafeAreaView style={styles.container}>
+      <GestureDetector gesture={gesture}>
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top + 12 }]}> 
         <Text style={styles.title}>🎮 2048 ⚡</Text>
 
         <TouchableOpacity style={styles.startButton} onPress={restartGame}>
@@ -152,13 +155,15 @@ export default function App() {
             <Text style={styles.emptyText}>No scores yet. Play your first game!</Text>
           }
         />
-      </SafeAreaView>
+        </SafeAreaView>
+      </GestureDetector>
     );
   }
 
   if (gameOver) {
     return (
-      <SafeAreaView style={styles.container}>
+      <GestureDetector gesture={gesture}>
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top + 12 }]}> 
         <Text style={[styles.title, { color: "red" }]}>Game Over 💀</Text>
         <Text style={styles.text}>Your Score: {score}</Text>
 
@@ -182,18 +187,21 @@ export default function App() {
             </View>
           )}
         />
-      </SafeAreaView>
+        </SafeAreaView>
+      </GestureDetector>
     );
   }
 
   // Game screen
   return (
-    <SafeAreaView style={styles.container}>
+    <GestureDetector gesture={gesture}>
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top + 12 }]}> 
       <Title score={score} onRestart={restartGame} />
       <Board grid={grid} />
       <GameOverlay win={win} gameOver={gameOver} onRestart={restartGame} />
       <Text style={styles.text}>Combine tiles to reach 2048!</Text>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GestureDetector>
   );
 }
 

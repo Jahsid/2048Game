@@ -18,13 +18,25 @@ const CELL_COLORS: Record<number, string> = {
 
 type CellProps = {
   value: number;
+  size?: number;
+  gap?: number;
+  isLast?: boolean;
 };
 
-const Cell: React.FC<CellProps> = ({ value }) => {
+const Cell: React.FC<CellProps> = ({ value, size = 70, gap = 8, isLast = false }) => {
+  const cellStyle = {
+    width: size,
+    height: size,
+    borderRadius: Math.round(size * 0.14),
+    marginRight: isLast ? 0 : gap,
+    marginBottom: gap,
+  } as const;
+
   return (
     <View
       style={[
         styles.cell,
+        cellStyle,
         { backgroundColor: CELL_COLORS[value] || '#292524' },
       ]}
     >
@@ -38,7 +50,6 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 10,
-    margin: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },

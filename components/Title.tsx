@@ -18,7 +18,7 @@ const Title: React.FC<Props> = ({ score, onRestart }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  container: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, width: '100%' },
   score: { fontSize: 18, fontWeight: 'bold', color: '#f97316' },
   button: { backgroundColor: '#f97316', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   buttonText: { color: '#fff', fontWeight: 'bold' },
